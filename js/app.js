@@ -100,7 +100,7 @@ const setTime = (deadline) => {
     const hours = document.querySelector("#hours")
     const minutes = document.querySelector("#minutes")
     const seconds = document.querySelector("#seconds")
-
+// Остановить таймер в проекте food когда время достигнет нуля
     const makeZero = (num) => {
         if(num > 0 && num < 10){
             return`0${num}`
@@ -143,7 +143,7 @@ modalCloseBtn.addEventListener('click',handleCloseModal)
 
 // Убираем скролл сайта
 
-document.body.style.overflow = 'hidden'; 
+// document.body.style.overflow = 'hidden'; 
 
 // class Dog{
 //     constructor(size, color){
@@ -158,32 +158,75 @@ document.body.style.overflow = 'hidden';
 // const whiteDog = new Dog(10, 'white')
 // const brownDog = new Dog(4, 'brown')
 
-// class Menu {
-//     constructor(img, alt, title, description, price){
-//         this.img = img
-//         this.alt = alt
-//         this.title = title
-//         this.description = description
-//         this.price = price
-//     }
-//     render(){
-//         const wrapper = document.querySelector("#cardWrapper")
-//         const block = document.createElement("div")
+class Menu {
+    constructor(img, alt, title, description, price){
+        this.img = img
+        this.alt = alt
+        this.title = title
+        this.description = description
+        this.price = price
+    }
+    render(){
+        const wrapper = document.querySelector("#cardWrapper")
+        const block = document.createElement("div")
 
-//         block.innerHTML = `
-// 			<div class="menu__item">
-// 				<img src="${this.img}" alt="${this.alt}">
-// 				<h3 class="menu__item-subtitle">${this.title}</h3>
-// 				<div class="menu__item-descr">${this.description}
-// 				</div>
-// 				<div class="menu__item-divider"></div>
-// 				<div class="menu__item-price">
-// 					<div class="menu__item-cost">Цена:</div>
-// 					<div class="menu__item-total"><span>$(this.price)</span> грн/день</div>
-// 				</div>
-// 			</div>`
-//         wrapper.append(block)
-//     }
-// }
+        block.innerHTML = `
+			<div class="menu__item">
+				<img src="${this.img}" alt="${this.alt}">
+				<h3 class="menu__item-subtitle">${this.title}</h3>
+				<div class="menu__item-descr">${this.description}
+				</div>
+				<div class="menu__item-divider"></div>
+				<div class="menu__item-price">
+					<div class="menu__item-cost">Цена:</div>
+					<div class="menu__item-total"><span>${this.price}</span> грн/день</div>
+				</div>
+			</div>`
+        wrapper.append(block)
+    }
+}
+
+const fetchMenu = async () => {
+    const request = await fetch('data.json')
+    const responce = await request.json()
+    return responce
+}
+
+fetchMenu().then((data) => {
+    data.menu.forEach(({img, alt, title, description, price}) => {
+        new Menu(img, alt, title, description, price).render()
+    })
+})
 
 
+const forms = document.querySelectorAll('form')
+
+
+const postData = async (url,data) => {
+    const request = await fetch(url, {
+        method: "POST",
+        body: data
+    })
+    return request
+}
+
+const bindPostData = (form) => {
+    form.addEventListener('submit', (e) => {
+        e.preventDefault()
+
+        const formData = new FormData(form)
+
+        const formDataObject = {}
+
+        formData.forEach((item, name) => {
+            formDataObject[name] = item
+        })
+        const stringifyObj = JSON.stringify(formDataObject)
+
+        postData("server.php", stringifyObj)
+    })
+}
+
+forms.forEach((form) => {
+    bindPostData(form)
+})
